@@ -1,5 +1,5 @@
-# Decay-Driven Engagement Strength for Cohesive Subgraph Discovery: The $s$-Hypercore Framework
-This repository provides a complete implementation of a novel cohesive subgraph discovery model named $s$-hypercore for hypergraphs.
+# Decay-Driven Engagement Strength for Cohesive Subgraph Discovery: The s-Hypercore Framework
+This repository provides a complete implementation of a novel cohesive subgraph discovery model named s-hypercore for hypergraphs.
 
 ## Code Structure
 ```
