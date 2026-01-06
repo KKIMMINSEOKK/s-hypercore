@@ -1,11 +1,10 @@
 import queue
 from collections import defaultdict
 import func
-
 def run(G, s):
     R = set()
     S = set()
-    computed = set()
+    T = set()
     ES = {}
     LB = {}
     Q = queue.Queue()
@@ -15,7 +14,10 @@ def run(G, s):
     for node in G.nodes:
         degree = len(G.nodes[node].Edge)
         if degree < s:
-            R.add(node)
+            R.add(node) # By lemma 3
+        else:
+            ES[node] = 0
+            LB[node] = 0
     for node in R:
         G.del_node(node)
 
@@ -25,30 +27,33 @@ def run(G, s):
         N = defaultdict(list)
         for hyperedge in G.nodes[node].Edge:
             for neighbor in G.hyperedges[hyperedge]:
-                if (not core or neighbor not in S) and neighbor not in computed and neighbor != node:
+                if (not core or neighbor not in S) and neighbor not in T and neighbor != node:
                     N[neighbor].append(hyperedge)
-        if node not in ES:
-            ES[node] = 0
         for neighbor in N:
+            if core and neighbor in S:
+                continue
             DCS = func.getDCS(node, neighbor, N, G, map)
-            if neighbor not in ES:
-                ES[neighbor] = 0
-            ES[neighbor] += DCS
-            if not core:
-                ES[node] += DCS
-                if DCS >= s:
-                    S.add(node)
-                    S.add(neighbor)
-                    core = True
-            else:
-                if neighbor not in LB:
-                    LB[neighbor] = 0
+            if core:
+                ES[neighbor] += DCS
                 LB[neighbor] += DCS
                 if LB[neighbor] >= s:
-                    S.add(neighbor)
+                    S.add(neighbor) # By lemma 5
+            elif neighbor in S:
+                ES[node] += DCS
+                LB[node] += DCS
+                if LB[node] >= s:
+                    S.add(node) # By lemma 5
+                    core = True
+            else:
+                ES[node] += DCS
+                ES[neighbor] += DCS
+                if DCS >= s:
+                    S.add(node) # By lemma 4
+                    S.add(neighbor) # By lemma 4
+                    core = True
+        T.add(node)
         if ES[node] < s:
             Q.put(node)
-        computed.add(node)
 
     # ===== Peeling process =====
     while not Q.empty():
@@ -69,5 +74,4 @@ def run(G, s):
     # ===== Compute additional statistics =====
     results = {}
     results = func.get_statistics(G, ES, map)
-
     return G, results
